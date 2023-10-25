@@ -9,9 +9,13 @@
   let cruxMetrics = {};
   let lighthouseMetrics = {};
   let inputUrl = "";
+  let searchStatus = "Search";
+
+  var a = 1;
 
   async function run() {
     const url = setUpQuery(inputUrl);
+    searchStatus = "Searching...";
     try {
       const response = await fetch(url);
       if (!response.ok) {
@@ -25,6 +29,7 @@
         "First Input Delay":
           json.loadingExperience.metrics.FIRST_INPUT_DELAY_MS.category,
       };
+
       lighthouseMetrics = {
         "First Contentful Paint":
           json.lighthouseResult.audits["first-contentful-paint"]
@@ -42,16 +47,26 @@
           json.lighthouseResult.audits["estimated-input-latency"]
             ?.displayValue || "N/A",
       };
+      searchStatus = "Searched";
+      if (a == 1) {
+        document.getElementById("inTheend").style.opacity = "1";
+        document.getElementById("inTheend").style.scale = "1";
+        return (a = 0);
+      }
     } catch (error) {
       console.log("Error:", error);
     }
   }
 
   function setUpQuery(url) {
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      url = "http://" + url;
+    }
     const api = "https://www.googleapis.com/pagespeedonline/v5/runPagespeed";
     const parameters = {
       url: encodeURIComponent(url),
     };
+    // let queryString = Object.keys(parameters).map((key) => `${key}=${encodeURIComponent(parameters[key])}`
     let query = `${api}?`;
     for (const key in parameters) {
       query += `${key}=${parameters[key]}&`;
@@ -61,6 +76,19 @@
 
   function showInitialContent(id) {
     pageInfo = `${id}`;
+  }
+
+  var btn = document.querySelector(".btn");
+
+  function reset() {
+    // Clear the result and input URL
+    pageInfo = "";
+    cruxMetrics = {};
+    lighthouseMetrics = {};
+    inputUrl = "";
+    searchStatus = "Search";
+    document.getElementById("inTheend").style.opacity = "0";
+    document.getElementById("inTheend").style.scale = "0";
   }
 </script>
 
@@ -124,16 +152,24 @@
   </div>
   <div class="insert">
     <label for="urlInput" class="tag">Enter URL:</label>
-    <input type="text" class="w3-input" id="urlInput" bind:value={inputUrl} />
-
-    <button on:click={run} class="btn">Search</button>
+    <input
+      type="text"
+      class="w3-input"
+      id="urlInput"
+      bind:value={inputUrl}
+      placeholder="Enter your website"
+    />
+    <div class="insert button-container">
+      <button on:click={run} class="btn">{searchStatus}</button>
+      <button on:click={reset} class="btn">Reset</button>
+    </div>
   </div>
   <img
     src="C:\Users\Kadiya\devstar\src\routes\(tools)\speedpage\bg.jpg"
     alt=""
   />
 </div>
-<div class="inTheend">
+<div id="inTheend">
   <p class="Website">Website: {pageInfo}</p>
 
   <h2 class="Op">User Experience Report Results</h2>
@@ -152,6 +188,10 @@
 </div>
 
 <style>
+  *::selection {
+    background-color: black;
+    color: white;
+  }
   .heading {
     display: block;
     text-align: center;
@@ -365,18 +405,20 @@
   }
 
   .insert {
+    display: flex;
     padding: 10px;
     font-size: 20px;
     /* border:2px solid black; */
+    align-items: center;
   }
 
   #urlInput {
     border-radius: 10px;
-    width: 60%;
+    width: 50%;
     margin: 10px;
   }
 
-  .inTheend {
+  #inTheend {
     border: 2px solid black;
     width: 100%;
     padding: 10px;
@@ -384,10 +426,12 @@
     align-items: center;
     margin: left;
     margin-top: 10px;
+    opacity: 0;
+    /* scale: 0; */
   }
 
   .Website {
-    color: black;;
+    color: black;
     background-color: beige;
     align-items: left;
     justify-content: left;
@@ -399,11 +443,17 @@
     padding: 15px;
   }
   .out {
+    list-style: none;
     color: #000;
     border: 2px solid black;
     background-color: beige;
-    align-items: center;
+    align-items: left;
+    justify-content: left;
     padding: 15px;
+  }
+  .button-container {
+    display: flex;  
+    align-items: center;
   }
 
   .btn {
@@ -424,6 +474,8 @@
     overflow: hidden;
     box-shadow: 0 5px 15px #193047;
     border-radius: 20px;
+    place-content: center;
+    margin-right: 10px;
   }
 
   .btn:hover {

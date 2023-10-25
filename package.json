@@ -10,8 +10,14 @@
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.4.2",
+    "flowbite": "^1.8.1",
+    "flowbite-svelte": "^0.44.18",
     "gh-pages": "^6.0.0",
     "svelte": "^4.0.5",
     "vite": "^4.4.5"
+  },
+  "dependencies": {
+    "gsap": "^3.12.2",
+    "nodemon": "^3.0.1"
   }
 }
